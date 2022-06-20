@@ -1,0 +1,94 @@
+#!/bin/zsh
+
+#This is a script written to be run in macOS's native zsh for the creation of directories filled with Aliases to applications. 
+#The thought process behind this script was to make directories for all of the Adobe CC apps and the Microsoft Office apps, etc. so that I could place those directories onto the Dock on our lab computers for simplicity's sake. 
+
+#Type the names of applications you want to create aliases for in the () on line 8.  What you type is both the search term and what the alias will be called if found. 
+# When entering applications, use unique application name segments. (Ex. Word instead of Microsoft Word, Dreamweaver instead of Adobe Dreamweaver, etc. OR you can use "Adobe Acrobat" if you need specificity.)
+SEARCH_TARGETS=()
+
+#Type the name of the directory you want to fill with the aliases you are attempting to create in the "" on line 11.
+ALIAS_DIRECTORY=""
+
+## NO MORE USER INPUT NEEDED ##
+
+#Creating the Alias folder
+echo "Creating Alias Folder"
+mkdir /Applications/${ALIAS_DIRECTORY} || echo "Problem creating Alias Folder, recheck script." 
+
+echo "" #Blank line for spacing.
+
+#Define functions for mdfind searches performed at three levels of Applications directories.
+# arg1 is the input to perform the mdfind command on.
+search_applications() {
+  arg1=$1
+  mdfind -name "$1" -onlyin /Applications kind:app
+  return "$?"
+}
+search_sysapplications() {
+  arg1=$1
+  mdfind -name "$1" -onlyin /System/Applications kind:app
+  return "$?"
+}
+search_userapplications() {
+  arg1=$1
+  mdfind -name "$1" -onlyin ~/Applications kind:app
+  return "$?"
+}
+
+#Establish Array of Application names for Aliases.
+NAME_LIST=()
+#Establish array appended by the for loop block starting line 43, checking for each of the search targets with all three functions.  If one of the SEARCH_TARGETS is found the path is added to APP_LIST and the name is added to NAME_LIST. 
+APP_LIST=()
+for t in "${SEARCH_TARGETS[@]}"
+do 
+  RESULT=$(search_applications "$t")
+  if [ "$RESULT" != "" ]
+  then 
+    echo "$t found in /Applications."
+    APP_LIST+=("$RESULT")
+    NAME_LIST+=("$t")
+  else
+    echo "$t not found in /Applications, moving on."
+    RESULT=$(search_sysapplications "$t")
+    if [ "$RESULT" != "" ]
+    then
+      APP_LIST+=("$RESULT")
+      NAME_LIST+=("$t")
+      echo "$t found in /System/Applications"
+    else 
+      echo "$t not found in /System/Applications, moving on."
+      RESULT=$(search_userapplications "$t")
+      if [ "$RESULT" != "" ] 
+      then
+        echo "$t found in ~/Applications."
+        APP_LIST+=("$RESULT")
+        NAME_LIST+=("$t")
+      else
+        echo "$t not found in any applications folder, check if installed."
+      fi
+    fi
+  fi
+done
+
+#Blank line for spacing, then the results are listed.
+echo ""
+printf "%s\n" "Here is the list of found software:" "${APP_LIST[@]}"
+
+#Define make_alias function derived by Pico on MacAdmins Slack
+make_alias() {
+    # $1 = source (where the alias points)
+    # $2 = target (where you want the alias to be created)
+    OSASCRIPT_ENV_ALIAS_SOURCE="$1" OSASCRIPT_ENV_ALIAS_TARGET="$2" osascript -l JavaScript -e '$.NSURL.writeBookmarkDataToURLOptionsError($.NSURL.fileURLWithPath($.NSProcessInfo.processInfo.environment.objectForKey("OSASCRIPT_ENV_ALIAS_SOURCE")).bookmarkDataWithOptionsIncludingResourceValuesForKeysRelativeToURLError($.NSURLBookmarkCreationSuitableForBookmarkFile, [], $.NSURL.fileURLWithPath("/"), null), $.NSURL.fileURLWithPath($.NSProcessInfo.processInfo.environment.objectForKey("OSASCRIPT_ENV_ALIAS_TARGET")), $.NSURLBookmarkCreationSuitableForBookmarkFile, null)'
+}
+
+echo "" #Blank line for spacing
+
+#Count the number of found applications, then run a while loop for the number of times to use the make_alias function while calling for the index of the count in the APP_LIST and NAME_LIST arrays for the arguments. 
+COUNT=("${#APP_LIST[@]}")
+num=1 
+while [ $num -le ${COUNT} ]; do
+  echo "Creating alias for ${NAME_LIST[$num]}"
+  make_alias "${APP_LIST[$num]}" "/Applications/$ALIAS_DIRECTORY/"${NAME_LIST[$num]}""
+  num=$(($num+1))
+done
