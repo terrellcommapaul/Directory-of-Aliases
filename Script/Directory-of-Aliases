@@ -5,33 +5,32 @@
 
 #Type the names of applications you want to create aliases for in the () on line 8.  What you type is both the search term and what the alias will be called if found. 
 # When entering applications, use unique application name segments. (Ex. Word instead of Microsoft Word, Dreamweaver instead of Adobe Dreamweaver, etc. OR you can use "Adobe Acrobat" if you need specificity.)
-SEARCH_TARGETS=()
+SEARCH_TARGETS=(Chrome Spotify Zotero)
 
 #Type the name of the directory you want to fill with the aliases you are attempting to create in the "" on line 11.
-ALIAS_DIRECTORY=""
+ALIAS_DIRECTORY="Important Stuff"
 
 ## NO MORE USER INPUT NEEDED ##
 
 #Creating the Alias folder
 echo "Creating Alias Folder"
-mkdir /Applications/${ALIAS_DIRECTORY} || echo "Problem creating Alias Folder, recheck script." 
+mkdir /Applications/"${ALIAS_DIRECTORY}" || echo "Problem creating Alias Folder, recheck script." 
 
 echo "" #Blank line for spacing.
 
 #Define functions for mdfind searches performed at three levels of Applications directories.
-# arg1 is the input to perform the mdfind command on.
 search_applications() {
-  arg1=$1
+  # arg1 is the input to perform the mdfind command on.
   mdfind -name "$1" -onlyin /Applications kind:app
   return "$?"
 }
 search_sysapplications() {
-  arg1=$1
+  # arg1 is the input to perform the mdfind command on.
   mdfind -name "$1" -onlyin /System/Applications kind:app
   return "$?"
 }
 search_userapplications() {
-  arg1=$1
+  # arg1 is the input to perform the mdfind command on.
   mdfind -name "$1" -onlyin ~/Applications kind:app
   return "$?"
 }
@@ -89,6 +88,6 @@ COUNT=("${#APP_LIST[@]}")
 num=1 
 while [ $num -le ${COUNT} ]; do
   echo "Creating alias for ${NAME_LIST[$num]}"
-  make_alias "${APP_LIST[$num]}" "/Applications/$ALIAS_DIRECTORY/"${NAME_LIST[$num]}""
+  make_alias "${APP_LIST[$num]}" "/Applications/$ALIAS_DIRECTORY/${NAME_LIST[$num]}"
   num=$(($num+1))
 done
