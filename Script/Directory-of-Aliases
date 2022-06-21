@@ -37,7 +37,7 @@ search_userapplications() {
 
 #Establish Array of Application names for Aliases.
 NAME_LIST=()
-#Establish array appended by the for loop block starting line 43, checking for each of the search targets with all three functions.  If one of the SEARCH_TARGETS is found the path is added to APP_LIST and the name is added to NAME_LIST. 
+#Establish array appended by the for loop block starting line 42, checking for each of the search targets with all three functions.  If one of the SEARCH_TARGETS is found the path is added to APP_LIST and the name is added to NAME_LIST. 
 APP_LIST=()
 for t in "${SEARCH_TARGETS[@]}"
 do 
