@@ -5,10 +5,10 @@
 
 #Type the names of applications you want to create aliases for in the () on line 8.  What you type is both the search term and what the alias will be called if found. 
 # When entering applications, use unique application name segments. (Ex. Word instead of Microsoft Word, Dreamweaver instead of Adobe Dreamweaver, etc. OR you can use "Adobe Acrobat" if you need specificity.)
-SEARCH_TARGETS=(Chrome Spotify Zotero)
+SEARCH_TARGETS=()
 
 #Type the name of the directory you want to fill with the aliases you are attempting to create in the "" on line 11.
-ALIAS_DIRECTORY="Important Stuff"
+ALIAS_DIRECTORY=""
 
 ## NO MORE USER INPUT NEEDED ##
 
